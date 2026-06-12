@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>读,不装饰</title>
+<style>
+  :root{
+    --bg:#FAFAF7; --ink:#1A1A1A; --sec:#666; --faint:#999;
+    --rule:#E5E5E0; --accent:#C8553D; --card:#F5F5F0; --key:#FFF0EC;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;
+    font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  .progress{position:fixed; top:0; left:0; height:2px; width:0;
+    background:var(--accent); z-index:50;}
+  nav{position:fixed; top:0; left:0; right:0; height:52px; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; background:rgba(250,250,247,.82);
+    backdrop-filter:saturate(180%) blur(12px);
+    border-bottom:1px solid var(--rule);}
+  nav .t{font-size:14px; font-weight:600; letter-spacing:-.01em;}
+  nav .badge{color:var(--accent); font-size:11px; font-weight:600;
+    letter-spacing:.08em; text-transform:uppercase; margin-left:8px;}
+  nav .toc-btn{font-size:14px; color:var(--sec); cursor:pointer;
+    background:none; border:none; font-family:inherit;}
+  .drawer{position:fixed; top:0; right:0; bottom:0; width:280px; z-index:45;
+    background:var(--bg); border-left:1px solid var(--rule);
+    transform:translateX(100%); transition:transform .2s ease;
+    padding:72px 28px; overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer a{display:block; text-decoration:none; color:var(--ink);
+    font-size:15px; padding:8px 0; border-bottom:1px solid var(--rule);}
+  .drawer a .n{color:var(--accent); font-weight:600; margin-right:10px;}
+  .scrim{position:fixed; inset:0; z-index:44; background:rgba(0,0,0,.04);
+    opacity:0; pointer-events:none; transition:opacity .2s;}
+  .scrim.open{opacity:1; pointer-events:auto;}
+  main{max-width:680px; margin:0 auto; padding:120px 24px 96px;}
+  h1{font-size:42px; line-height:1.2; font-weight:600; letter-spacing:-.02em;
+    margin:0 0 12px;}
+  .sub{color:var(--sec); font-size:18px; margin:0 0 16px;}
+  .meta{color:var(--faint); font-size:13px; margin:0 0 8px;}
+  hr{border:none; border-top:1px solid var(--rule); margin:56px 0;}
+  h2{font-size:28px; line-height:1.3; font-weight:600; letter-spacing:-.015em;
+    scroll-margin-top:80px; margin:80px 0 20px;}
+  h2 .n{color:var(--accent); margin-right:14px;}
+  p{margin:0 0 1.4em;}
+  .key{font-size:22px; font-weight:600; letter-spacing:-.01em; text-align:center;
+    margin:60px 0; line-height:1.4;}
+  blockquote{margin:32px 0; padding:0 0 0 18px; border-left:3px solid var(--accent);
+    font-family:Georgia,"Songti SC",serif; font-style:italic; font-size:17px;}
+  blockquote .src{display:block; font-family:-apple-system,"PingFang SC",sans-serif;
+    font-style:normal; font-size:13px; color:var(--sec); margin-top:8px;}
+  .contrast{display:flex; gap:16px; margin:32px 0;}
+  .contrast .c{flex:1; background:var(--card); padding:24px; border-radius:3px;}
+  .contrast .label{color:var(--accent); font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; margin-bottom:10px;}
+  .contrast .h{font-weight:600; margin-bottom:8px;}
+  .contrast .d{color:var(--sec); font-size:15px; line-height:1.6;}
+  @media(max-width:560px){.contrast{flex-direction:column;}}
+  details{margin:28px 0; border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);}
+  summary{cursor:pointer; list-style:none; padding:14px 0; font-size:14px;
+    color:var(--sec); display:flex; justify-content:space-between;}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+"; color:var(--accent);}
+  details[open] summary::after{content:"\2212";}
+  details .body{font-size:15px; color:var(--sec); line-height:1.7;
+    padding:0 0 16px;}
+  footer{max-width:680px; margin:0 auto; padding:48px 24px 80px;
+    border-top:1px solid var(--rule); color:var(--faint); font-size:13px;}
+  footer .name{color:var(--ink); font-size:15px; font-weight:600; margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<nav>
+  <div><span class="t">读,不装饰</span></div>
+  <button class="toc-btn" id="tocBtn">目录 ▾</button>
+</nav>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <a href="#s1"><span class="n">01</span>活是排版,不是抢救</a>
+  <a href="#s2"><span class="n">02</span>两种读者,一次分叉</a>
+  <a href="#s3"><span class="n">03</span>每个组件都是一笔债</a>
+</aside>
+
+<main>
+  <h1>读,不装饰</h1>
+  <p class="sub">这个 skill 做什么——由它自己排版的一篇说明。</p>
+  <p class="meta">read-not-decorate · 2026 · 自指演示</p>
+  <hr>
+
+  <p>这一页是装配出来的,不是设计出来的。文字以一篇写完的 markdown 进来;
+  skill 选了模式,在固定的视觉系统下排版,只在文字本来就有结构的地方调了组件。
+  这里没有一句话是为了"更好读"被改写的。这份克制就是全部产品。</p>
+
+  <h2 id="s1"><span class="n">01</span>活是排版,不是抢救</h2>
+  <p>多数文档工具在做一件事:把撑不住的文字打扮得撑得住——渐变标题、随手拎
+  一句做成大字引用、每个小标题旁配一个图标。装饰是个信号:有人断定这段文字
+  自己留不住注意力,于是用颜色把它架起来。</p>
+  <p>这个 skill 拒绝这个动作。它假设文字自己配得上被读,它的任务只是让开路:
+  一页暖白、一种墨色、一个只落在判断和结构上的强调色。</p>
+
+  <div class="key">如果一篇东西需要装饰才能被读,要修的是文字,不是 CSS。</div>
+
+  <blockquote>
+    看到结构才调组件,绝不为凑数而调。
+    <span class="src">read-not-decorate · 立场第 2 条</span>
+  </blockquote>
+
+  <h2 id="s2"><span class="n">02</span>两种读者,一次分叉</h2>
+  <p>排任何东西之前,skill 先选一种模式——因为两种读者对同一篇文字,要的是
+  相反的东西。</p>
+
+  <div class="contrast">
+    <div class="c">
+      <div class="label">留档</div>
+      <div class="h">读者是几个月后的作者</div>
+      <div class="d">保留推理、每个判断的依据、当时真实存在的不确定。为反复
+      翻查而建。</div>
+    </div>
+    <div class="c">
+      <div class="label">分发</div>
+      <div class="h">读者是陌生人</div>
+      <div class="d">保留能独立站住的干净结论。删掉内部修订痕迹和把握度
+      标记。</div>
+    </div>
+  </div>
+
+  <p>这个分叉不是同一文件上的滑块。它决定哪些组件存活、文件怎么交付。
+  选晚了,等于选两次。</p>
+
+  <h2 id="s3"><span class="n">03</span>每个组件都是一笔债</h2>
+  <p>每加一个组件,就是在宣称这段文字有那种结构。结构不在而硬加,读者会摸到
+  那条接缝。所以默认是普通段落,倾向永远是更少的组件,不是更多。</p>
+
+  <details>
+    <summary>边界与不适用</summary>
+    <div class="body">这个 skill 面向写完的长文。简短笔记、原始碎片、聊天记录、
+    幻灯片、仪表盘都在边界之外——它们需要重做内容,不是排版内容。遇到这类
+    输入,正确的回应是说明并停手,不为产出 HTML 而产出 HTML。</div>
+  </details>
+
+  <p>装饰被去掉、不需要的组件被拒绝之后,剩下的,是一篇凭句子本身的力气
+  请求被读的文档。这是这个 skill 唯一想守住的东西。</p>
+</main>
+
+<footer>
+  <div class="name">K</div>
+  MIT · 可自由使用、改编、商用。<br>
+  本页由 read-not-decorate 装配。
+</footer>
+
+<script>
+  var prog=document.getElementById('prog');
+  function onScroll(){
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    prog.style.width=(max>0?(h.scrollTop/max*100):0)+'%';
+  }
+  document.addEventListener('scroll',onScroll); onScroll();
+  var drawer=document.getElementById('drawer');
+  var scrim=document.getElementById('scrim');
+  function toggle(open){drawer.classList.toggle('open',open);
+    scrim.classList.toggle('open',open);}
+  document.getElementById('tocBtn').addEventListener('click',function(){
+    toggle(!drawer.classList.contains('open'));});
+  scrim.addEventListener('click',function(){toggle(false);});
+  Array.prototype.forEach.call(drawer.querySelectorAll('a'),function(a){
+    a.addEventListener('click',function(){toggle(false);});});
+</script>
+</body>
+</html>
