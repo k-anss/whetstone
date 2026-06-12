@@ -1,0 +1,4 @@
+# Treat the self-referential demo pages as documentation, not source code,
+# so GitHub's language stats reflect this repo's actual content (markdown
+# discipline files), not the two HTML demo pages.
+skills/*/examples/*.html linguist-documentation
