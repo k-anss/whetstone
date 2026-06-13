@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Field-Test Log</title>
+<style>
+:root{--bg:#FAFAF7;--ink:#1A1A1A;--sub:#666666;--line:#E5E5E0;--accent:#C8553D;--warn:#B85C00;--card:#FFFFFF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:16px;line-height:1.6;}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 140px;}
+header.top{padding:20px 0 12px;}
+h1{font-size:22px;font-weight:600;}
+.subtitle{font-size:14px;color:var(--sub);margin-top:2px;}
+/* common header */
+.chead{border:1px solid var(--line);border-radius:4px;margin:14px 0 0;background:var(--card);}
+.chead-summary{display:none;padding:10px 14px;font-size:14px;color:var(--sub);cursor:pointer;}
+.chead-body{padding:14px;}
+.chead.collapsed .chead-summary{display:block;}
+.chead.collapsed .chead-body{display:none;}
+.chead-hint{font-size:13px;color:var(--sub);margin-bottom:10px;}
+/* tabs */
+.tabs{position:sticky;top:0;background:var(--bg);display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:18px;z-index:20;}
+.tab{font-size:15px;color:var(--sub);padding:10px 2px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;}
+.tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+/* cards */
+.module{display:none;padding-top:20px;}
+.module.active{display:block;}
+.card{border:1px solid var(--line);border-radius:4px;background:var(--card);padding:18px 16px 14px;margin-bottom:24px;}
+.card h2{font-size:17px;font-weight:600;margin-bottom:4px;}
+.card .itemnote{font-size:13px;color:var(--sub);margin-bottom:12px;}
+.fld{margin-bottom:12px;}
+.fld label{display:block;font-size:14px;color:var(--ink);margin-bottom:4px;}
+.req{color:var(--accent);}
+input[type=text],input[type=date],select,textarea{width:100%;font-size:16px;font-family:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);}
+textarea{resize:none;overflow:hidden;min-height:64px;}
+.fld.missing input,.fld.missing select,.fld.missing textarea{border-color:var(--warn);}
+.row2{display:flex;gap:12px;}
+.row2 .fld{flex:1;}
+@media (max-width:560px){.row2{display:block;}}
+/* buttons */
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;align-items:center;}
+button{font-family:inherit;font-size:14px;border-radius:4px;cursor:pointer;padding:8px 14px;border:1px solid var(--line);background:var(--bg);color:var(--sub);}
+button.primary{margin-left:auto;border-color:var(--ink);color:var(--ink);background:var(--card);}
+button:disabled{opacity:.45;cursor:default;}
+.cardstatus{font-size:13px;color:var(--sub);margin-top:8px;display:none;}
+.undo{color:var(--accent);background:none;border:none;padding:0 4px;font-size:13px;cursor:pointer;display:none;}
+/* notice */
+.notice{position:fixed;top:0;left:0;right:0;background:var(--card);border-bottom:1px solid var(--line);text-align:center;font-size:14px;padding:9px;z-index:60;display:none;}
+.notice b{color:var(--accent);font-weight:600;}
+/* output */
+.out{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:40;}
+.out-inner{max-width:720px;margin:0 auto;padding:0 16px;}
+.out-toggle{width:100%;text-align:left;border:none;background:none;padding:12px 0;font-size:14px;color:var(--sub);}
+.out-body{display:none;padding-bottom:14px;}
+.out.open .out-body{display:block;}
+.out pre{font-family:"SF Mono","PingFang SC",Menlo,monospace;font-size:13px;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px;max-height:38vh;overflow:auto;white-space:pre-wrap;}
+.out-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.copied{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
+</style>
+</head>
+<body>
+<div class="notice" id="notice"></div>
+<div class="wrap">
+<header class="top">
+  <h1>Skill Field-Test Log</h1>
+  <div class="subtitle">On-site record and export for field-testing third-party skills</div>
+  <div class="chead" id="chead">
+    <div class="chead-summary" id="cheadSummary"></div>
+    <div class="chead-body">
+      <div class="chead-hint">Fill the session basics first</div>
+      <div class="row2">
+        <div class="fld" data-req="1"><label>Date <span class="req">*</span></label><input type="date" id="h_date"></div>
+        <div class="fld" data-req="1"><label>Project <span class="req">*</span></label><input type="text" id="h_project"></div>
+      </div>
+      <div class="fld" data-req="1"><label>Recorder <span class="req">*</span></label><input type="text" id="h_recorder"></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-m="m1">Test runs</button>
+  <button class="tab" data-m="m2">False-trigger checks</button>
+</nav>
+
+<section class="module active" id="m1">
+  <div class="card" data-item="ITEM-01" data-title="One test run" id="card1">
+    <h2>ITEM-01 · One test run</h2>
+    <div class="itemnote">The same skill may be tested several times a day, one record each. "Should have triggered but didn't" is filed here too.</div>
+    <div class="fld" data-req="1" data-name="Skill name"><label>Skill name <span class="req">*</span></label><input type="text"></div>
+    <div class="fld" data-name="Source (repo/link)"><label>Source (repo/link)</label><input type="text"></div>
+    <div class="fld" data-req="1" data-name="Test input summary"><label>Test input summary <span class="req">*</span></label><textarea rows="2"></textarea></div>
+    <div class="fld" data-name="Behavior without skill"><label>Behavior without skill</label><textarea rows="2"></textarea></div>
+    <div class="fld" data-name="Behavior with skill"><label>Behavior with skill</label><textarea rows="2"></textarea></div>
+    <div class="fld" data-req="1" data-name="Verdict"><label>Verdict <span class="req">*</span></label>
+      <select id="verdict1"><option value=""></option><option>keep</option><option>patch</option><option>drop</option><option>pending</option></select></div>
+    <div class="fld" data-name="Patch notes" id="patchFld" style="display:none"><label>Patch notes <span class="req">*</span></label><textarea rows="2"></textarea></div>
+    <div class="btnrow">
+      <button class="nodata" data-kind="none">Nothing happened</button>
+      <button class="nodata" data-kind="unchecked">Not checked / unsure</button>
+      <button class="primary" data-kind="add">Add to output</button>
+    </div>
+    <div class="cardstatus"></div><button class="undo">Undo</button>
+  </div>
+</section>
+
+<section class="module" id="m2">
+  <div class="card" data-item="ITEM-02" data-title="Negative case" id="card2">
+    <h2>ITEM-02 · Negative case</h2>
+    <div class="itemnote">This module records only queries that should NOT trigger. "Should have but didn't" belongs to Module 1.</div>
+    <div class="fld" data-req="1" data-name="Query that should not trigger"><label>Query that should not trigger <span class="req">*</span></label><textarea rows="2"></textarea></div>
+    <div class="fld" data-req="1" data-name="Did it trigger"><label>Did it trigger <span class="req">*</span></label>
+      <select><option value=""></option><option>no</option><option>yes</option><option>unclear</option></select></div>
+    <div class="fld" data-name="Note"><label>Note</label><textarea rows="2"></textarea></div>
+    <div class="btnrow">
+      <button class="nodata" data-kind="none">Nothing happened</button>
+      <button class="nodata" data-kind="unchecked">Not checked / unsure</button>
+      <button class="primary" data-kind="add">Add to output</button>
+    </div>
+    <div class="cardstatus"></div><button class="undo">Undo</button>
+  </div>
+</section>
+</div>
+
+<div class="out" id="out">
+  <div class="out-inner">
+    <button class="out-toggle" id="outToggle">▾  <span id="recCount">0</span> recorded · expand</button>
+    <div class="out-body">
+      <pre id="outPre"></pre>
+      <div class="out-btns">
+        <button id="btnCopy">Copy all</button>
+        <button id="btnDl">Download .txt</button>
+        <button id="btnClear">Clear</button>
+        <button id="btnClearYes" style="display:none">Confirm</button>
+        <button id="btnClearNo" style="display:none">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var SLUG="skill-field-test";
+var L={date:"Date",project:"Project",recorder:"Recorder",
+  none:"nothing happened",unchecked:"not checked (occurrence unknown)",
+  stNone:"Recorded: nothing happened",stUnchecked:"Recorded: not checked",stAdded:"Recorded",
+  missing1:"",missing2:"required field(s) missing",
+  clearQ1:"Clear all ",clearQ2:" records?",copied:"Copied",copy:"Copy all",
+  dlPrefix:"collect"};
+
+/* ---------- state ---------- */
+var records=[]; // array of strings (one record each, no separators)
+try{var saved=localStorage.getItem("K_form_records_"+SLUG); if(saved) records=JSON.parse(saved);}catch(e){}
+var header={date:"",project:"",recorder:""};
+try{var sh=localStorage.getItem("K_form_header_"+SLUG); if(sh) header=JSON.parse(sh);}catch(e){}
+
+/* ---------- common header ---------- */
+var chead=document.getElementById("chead");
+var hd=document.getElementById("h_date"),hp=document.getElementById("h_project"),hr=document.getElementById("h_recorder");
+hd.value=header.date||""; hp.value=header.project||""; hr.value=header.recorder||"";
+function headerDone(){return hd.value&&hp.value.trim()&&hr.value.trim();}
+function syncHeader(){
+  header={date:hd.value,project:hp.value.trim(),recorder:hr.value.trim()};
+  try{localStorage.setItem("K_form_header_"+SLUG,JSON.stringify(header));}catch(e){}
+  if(headerDone()){
+    document.getElementById("cheadSummary").textContent=header.date+" · "+header.project+" · "+header.recorder;
+    chead.classList.add("collapsed");
+  }
+}
+[hd,hp,hr].forEach(function(el){el.addEventListener("change",syncHeader);el.addEventListener("blur",syncHeader);});
+document.getElementById("cheadSummary").addEventListener("click",function(){chead.classList.remove("collapsed");});
+if(headerDone()) syncHeader();
+
+/* ---------- tabs ---------- */
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+    document.querySelectorAll(".module").forEach(function(x){x.classList.remove("active");});
+    t.classList.add("active");
+    document.getElementById(t.dataset.m).classList.add("active");
+  });
+});
+
+/* ---------- textarea autogrow ---------- */
+document.querySelectorAll("textarea").forEach(function(ta){
+  ta.addEventListener("input",function(){ta.style.height="auto";ta.style.height=(ta.scrollHeight)+"px";});
+});
+
+/* ---------- conditional required: patch notes ---------- */
+var verdict=document.getElementById("verdict1"),patchFld=document.getElementById("patchFld");
+verdict.addEventListener("change",function(){
+  if(verdict.value==="patch"){patchFld.style.display="";patchFld.dataset.req="1";}
+  else{patchFld.style.display="none";delete patchFld.dataset.req;patchFld.classList.remove("missing");patchFld.querySelector("textarea").value="";}
+});
+
+/* ---------- notice ---------- */
+var noticeT=null;
+function notice(html){
+  var n=document.getElementById("notice");n.innerHTML=html;n.style.display="block";
+  clearTimeout(noticeT);noticeT=setTimeout(function(){n.style.display="none";},3000);
+}
+
+/* ---------- records / output ---------- */
+function fmtHeaderLines(item,title){
+  return "["+item+"] "+title+"\n"+L.date+":"+(header.date||"")+"\n"+L.project+":"+(header.project||"")+"\n"+L.recorder+":"+(header.recorder||"");
+}
+function renderOut(){
+  var pre=document.getElementById("outPre");
+  pre.textContent=records.length?("===\n"+records.join("\n===\n")+"\n===\n"):"";
+  document.getElementById("recCount").textContent=records.length;
+  try{localStorage.setItem("K_form_records_"+SLUG,JSON.stringify(records));}catch(e){}
+}
+renderOut();
+
+/* ---------- per-card logic ---------- */
+document.querySelectorAll(".card").forEach(function(card){
+  var status=card.querySelector(".cardstatus"),undoBtn=card.querySelector(".undo");
+  var undoIdx=-1,undoT=null;
+  function fields(){return Array.prototype.slice.call(card.querySelectorAll(".fld")).filter(function(f){return f.offsetParent!==null||f.style.display!=="none";});}
+  function setDisabled(v){card.querySelectorAll("input,select,textarea").forEach(function(el){el.disabled=v;});
+    card.querySelectorAll(".btnrow button").forEach(function(b){b.disabled=v;});}
+  function showUndo(idx,label){
+    undoIdx=idx;status.textContent=label;status.style.display="block";undoBtn.style.display="inline";
+    clearTimeout(undoT);undoT=setTimeout(function(){undoBtn.style.display="none";},5000);
+  }
+  undoBtn.addEventListener("click",function(){
+    if(undoIdx>=0&&undoIdx<records.length){records.splice(undoIdx,1);renderOut();}
+    undoIdx=-1;undoBtn.style.display="none";status.style.display="none";setDisabled(false);
+  });
+  card.querySelectorAll(".btnrow button").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var kind=btn.dataset.kind,item=card.dataset.item,title=card.dataset.title;
+      if(!headerDone()){
+        chead.classList.remove("collapsed");
+        var hm=0;[hd,hp,hr].forEach(function(el){var f=el.closest(".fld");f.classList.remove("missing");if(!el.value.trim()){f.classList.add("missing");hm++;}});
+        notice(L.missing1+" <b>"+hm+"</b> "+L.missing2);return;
+      }
+      if(kind==="none"||kind==="unchecked"){
+        records.push(fmtHeaderLines(item,title)+"\n---\n"+(kind==="none"?L.none:L.unchecked));
+        renderOut();setDisabled(true);btn.disabled=true;
+        showUndo(records.length-1,kind==="none"?L.stNone:L.stUnchecked);
+        return;
+      }
+      // add: validate
+      var miss=0,firstVal="";
+      fields().forEach(function(f){
+        var el=f.querySelector("input,select,textarea");if(!el)return;
+        f.classList.remove("missing");
+        if(f.dataset.req==="1"&&!el.value.trim()){f.classList.add("missing");miss++;}
+      });
+      if(miss>0){notice(L.missing1+" <b>"+miss+"</b> "+L.missing2);return;}
+      var lines=[];
+      fields().forEach(function(f){
+        var el=f.querySelector("input,select,textarea");if(!el)return;
+        var name=f.dataset.name;if(!name)return;
+        var v=el.value.trim();if(!v)return;
+        if(!firstVal&&el.tagName!=="SELECT")firstVal=v;
+        lines.push(name+":"+v);
+      });
+      records.push(fmtHeaderLines(item,title)+"\n---\n"+lines.join("\n"));
+      renderOut();
+      status.textContent=L.stAdded+(firstVal?(" · "+firstVal.slice(0,24)):"");
+      status.style.display="block";undoBtn.style.display="none";
+      card.querySelectorAll("input,select,textarea").forEach(function(el){el.value="";});
+      card.querySelectorAll("textarea").forEach(function(ta){ta.style.height="auto";});
+      if(card.querySelector("#patchFld")){patchFld.style.display="none";delete patchFld.dataset.req;}
+      card.querySelectorAll(".fld").forEach(function(f){f.classList.remove("missing");});
+    });
+  });
+  card.querySelectorAll("input,select,textarea").forEach(function(el){
+    el.addEventListener("focus",function(){el.closest(".fld").classList.remove("missing");});
+  });
+});
+
+/* ---------- output controls ---------- */
+document.getElementById("outToggle").addEventListener("click",function(){
+  document.getElementById("out").classList.toggle("open");
+});
+document.getElementById("btnCopy").addEventListener("click",function(){
+  var t=document.getElementById("outPre").textContent,b=this;
+  function ok(){b.classList.add("copied");b.textContent=L.copied;setTimeout(function(){b.classList.remove("copied");b.textContent=L.copy;},2000);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok);}
+  else{var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}
+});
+document.getElementById("btnDl").addEventListener("click",function(){
+  var t=document.getElementById("outPre").textContent;
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));
+  a.download=L.dlPrefix+"_"+(header.date||"date")+"_"+(header.project||"project")+".txt";
+  a.click();URL.revokeObjectURL(a.href);
+});
+var bc=document.getElementById("btnClear"),by=document.getElementById("btnClearYes"),bn=document.getElementById("btnClearNo");
+bc.addEventListener("click",function(){
+  bc.textContent=L.clearQ1+records.length+L.clearQ2;by.style.display="";bn.style.display="";
+});
+bn.addEventListener("click",function(){bc.textContent="Clear";by.style.display="none";bn.style.display="none";});
+by.addEventListener("click",function(){
+  records=[];renderOut();bc.textContent="Clear";by.style.display="none";bn.style.display="none";
+  document.querySelectorAll(".card").forEach(function(card){
+    card.querySelectorAll("input,select,textarea").forEach(function(el){el.disabled=false;el.value="";});
+    card.querySelectorAll(".btnrow button").forEach(function(b){b.disabled=false;});
+    card.querySelector(".cardstatus").style.display="none";
+  });
+  hd.value=header.date;hp.value=header.project;hr.value=header.recorder;
+});
+})();
+</script>
+</body>
+</html>
