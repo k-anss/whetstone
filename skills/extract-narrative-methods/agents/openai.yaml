@@ -1,0 +1,5 @@
+interface:
+  display_name: "叙事方法论萃取"
+  short_description: "用多模型协作从长篇叙事中萃取可追溯、可复核的方法论体系"
+  default_prompt: "Use $extract-narrative-methods to build and run an auditable extraction workflow for this book."
+
